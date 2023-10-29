@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 import axios from 'axios';
-import Items from './Items';
 
-interface Category {
+interface Item {
   id: number;
-  title: string;
+  createdAt: string;
+  task: string;
 }
 
-function App() {
-  const [categories, setCategories] = useState<Array<Category>>([]);
+function Items(props: { categoryId: number }) {
+  const [items, setItems] = useState<Array<Item>>([]);
 
   useEffect(() => {
     let config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: 'http://localhost:8080/category/all',
+      url: `http://localhost:8080/item/byCategoryId?categoryId=${props.categoryId}`,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -24,32 +23,30 @@ function App() {
     axios
       .request(config)
       .then(response => {
-        setCategories(response.data as Category[]);
+        setItems(response.data as Item[]);
       })
       .catch(error => {
         console.error('Error: ', error);
       });
-  }, []);
+  }, [props.categoryId]);
 
   return (
     <div>
-      {categories ? (
-        <div>
-          <h1>Response:</h1>
+      {items ? (
+        <>
           <ul>
-            {categories.map(item => (
+            {items.map(item => (
               <li key={item.id}>
-                <p>{item.title}</p>
-                <Items categoryId={item.id}/>
+                {item.task} - {item.createdAt}
               </li>
             ))}
           </ul>
-        </div>
+        </>
       ) : (
-        <p>Loading categories...</p>
+        <p>Loading items...</p>
       )}
     </div>
   );
 }
 
-export default App;
+export default Items;
